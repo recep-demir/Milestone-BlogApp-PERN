@@ -19,7 +19,8 @@ module.exports = {
             const result = await Blog.findAll({
                 include: [
                     { model: Category, attributes: ["name"] },
-                    { model: User, attributes: ["username", "firstName", "lastName"] }
+                    { model: User, attributes: ["username", "firstName", "lastName"] },
+                    { model: Comment }
                 ]
             });
 
@@ -57,14 +58,16 @@ module.exports = {
         const data = await Blog.findByPk(req.params.id, {
             include: [
                 { model: Category, attributes: ["name"] },
-                { model: User, attributes: ["username", "firstName", "lastName"] }
+                { model: User, attributes: ["username", "firstName", "lastName"] },
+                { model: Comment }
             ]
         });
 
         // EKLENEN KISIM: Ziyaret edilince sayıyı 1 artır ve kaydet
         if (data) {
-            data.countOfVisitors = (data.countOfVisitors || 0) + 1;
-            await data.save();
+            // Sequelize'da veritabanındaki rakamı kesin olarak 1 artırmanın en güvenli yolu
+            await data.increment('countOfVisitors', { by: 1 });
+            data.countOfVisitors += 1; // Ekrana anında güncel sayının gitmesi için
         }
 
         res.status(200).send({
@@ -112,26 +115,6 @@ module.exports = {
     
 
 
-    read: async (req, res) => {
-        let data = await Blog.findByPk(req.params.id, {
-            include: [
-                { model: Category, attributes: ["name"] },
-                { model: User, attributes: ["username", "firstName", "lastName"] }
-            ]
-        });
-
-        // DÜZELTME: Okunma sayısını artırıp kaydet
-        if (data) {
-            data.countOfVisitors = (data.countOfVisitors || 0) + 1;
-            await data.save();
-        }
-
-        res.status(200).send({
-            error: false,
-            result: data
-        });
-    },
-
     toggleLike: async (req, res) => {
         /*
         #swagger.tags = ["Blogs"]
@@ -146,16 +129,18 @@ module.exports = {
             let currentLikes = blog.likes || [];
 
             if (currentLikes.includes(userId)) {
-                // Önceden beğenmişse, beğeniyi geri çek
                 currentLikes = currentLikes.filter((id) => id !== userId);
             } else {
-                // Beğenmediyse, ekle
                 currentLikes.push(userId);
             }
 
+            // PostgreSQL'de Array kaydederken doğrudan Update atmak en garantili yoldur
+            await Blog.update(
+                { likes: currentLikes },
+                { where: { id: req.params.id } }
+            );
+
             blog.likes = currentLikes;
-            blog.changed('likes', true); // DÜZELTME: Postgres array güncellemelerinde bu ZORUNLUDUR
-            await blog.save();
 
             res.status(200).send({
                 error: false,
