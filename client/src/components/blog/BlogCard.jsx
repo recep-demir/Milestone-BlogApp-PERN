@@ -88,7 +88,7 @@ const formatDate = (dateString) => {
           <Typography>{countOfVisitors}</Typography>
         </Box>
         </Box>
-        <Button variant="contained" onClick={() => navigate(`/detail/${blog._id}`, { state: { blog } })}>
+        <Button variant="contained" onClick={() => navigate(`/detail/${blog.id}`, { state: { blog } })}>
           Read More
         </Button>
       </CardActions>
