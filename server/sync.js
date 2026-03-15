@@ -1,20 +1,19 @@
 "use strict";
 
-const { User, Category, Blog } = require('./src/models/index');
+const { sequelize, User, Category, Blog } = require('./src/models/index');
 
 module.exports = async () => {
     try {
-        // Tabloları temizle (Sıralama önemli: Önce Blog sonra Category/User)
+        await sequelize.sync();
         await Blog.destroy({ where: {}, cascade: true });
         await Category.destroy({ where: {}, cascade: true });
         await User.destroy({ where: {}, cascade: true });
 
         console.log(' - Old data cleared successfully.');
 
-        // 1. Test Kullanıcısı Oluştur
         const user = await User.create({
             username: "johndoe",
-            password: "Password123", // passwordEncrypt hook'u ile şifrelenecek
+            password: "Password123", 
             email: "john.doe@techblog.com",
             firstName: "John",
             lastName: "Doe",
@@ -22,16 +21,14 @@ module.exports = async () => {
             isAdmin: true
         });
 
-        // 2. İngilizce Kategoriler (5 Adet)
         const cats = await Category.bulkCreate([
             { name: 'Artificial Intelligence' },
             { name: 'Web Development' },
             { name: 'Data Science' },
             { name: 'Cybersecurity' },
             { name: 'Cloud Computing' }
-        ]);
+        ],{ returning: true });
 
-        // 3. Gerçekçi İngilizce Bloglar (10 Adet)
         await Blog.bulkCreate([
             {
                 title: 'The Future of Generative AI in Software Engineering',
