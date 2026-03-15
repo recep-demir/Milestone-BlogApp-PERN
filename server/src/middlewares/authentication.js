@@ -1,19 +1,17 @@
-" use strict"
+"use strict";
 
-const Token = require('../models/token');
+const { Token, User } = require("../models/index");
 
-module.exports= async (req, res, next) => {
-    req.user = null;
+module.exports = async (req, res, next) => {
+  const auth = req.headers?.authorization || null;
+  const tokenKey = auth ? auth.split(" ") : null;
 
-    const auth = req.headers?.authorization
-    const tokenArr = auth ? auth.split(' ') : null;
-
-    if(tokenArr && tokenArr[0]=='Token') {
-        const tokenData = await Token.findOne({token: tokenArr[1]}).populate('userId')
-        req.user = tokenData ? tokenData.userId : null;
-    }
-
-    next();
-
-
-}
+  if (tokenKey && tokenKey[0] === "Token") {
+    const tokenData = await Token.findOne({ 
+      where: { token: tokenKey[1] },
+      include: [User] // User bilgilerini de otomatik çekelim
+    });
+    if (tokenData) req.user = tokenData.User;
+  }
+  next();
+};
