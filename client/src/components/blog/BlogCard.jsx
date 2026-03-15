@@ -12,23 +12,37 @@ import { useNavigate } from "react-router-dom";
 import useBlogCalls from "../../hooks/useBlogCalls";
 import { useSelector } from "react-redux";
 
+export default function BlogCard({ blog }) {
+  // 1. _id yerine id alıyoruz.
+  // 2. likes, comments vb. backend'den boş gelirse sayfayı çökertmemesi için varsayılan değerler ([] ve 0) atıyoruz.
+  const { 
+    id, 
+    title, 
+    createdAt, 
+    content, 
+    image, 
+    likes = [], 
+    countOfVisitors = 0, 
+    comments = [] 
+  } = blog;
 
-export default function BlogCard({ blog}) {
-  const { id, title, createdAt, content, image,likes,countOfVisitors,comments } = blog;
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const { toggleLike } = useBlogCalls();
   const { user } = useSelector((state) => state.auth);
-  const isLiked = blog?.likes?.includes(currentUser?.id) || false;
-
   
-const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-};
+  // user._id yerine user.id kullanıyoruz
+  const isLiked = likes?.includes(user?.id);
+
+  const formatDate = (dateString) => {
+    // Tarih gelmezse hata vermemesi için ufak bir kontrol
+    if (!dateString) return "No Date";
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  };
 
   return (
     <Card
-    id={id}
+      id={id}
       sx={{
         height: 390,
         display: "flex",
@@ -44,7 +58,7 @@ const formatDate = (dateString) => {
           component="img"
           title={title}
         />
-        <Typography mt ={3} gutterBottom variant="h5" component="div">
+        <Typography mt={3} gutterBottom variant="h5" component="div">
           {title}
         </Typography>
       </CardContent>
@@ -72,23 +86,50 @@ const formatDate = (dateString) => {
       </CardContent>
 
       <CardActions sx={{ display: "flex", justifyContent: "space-between" }}>
-      <Box sx={{ display: "flex", gap: 3 }}>
-      <Box sx={{ display: "flex", gap:0.5, alignItems: "center", cursor: "pointer" ,"&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)"},"&:active": { transform: "scale(0.9)"}
-        
-       }} onClick={() => toggleLike(id, user?.id)}>
-          <FavoriteIcon sx={{ color: isLiked ? "red" : "gray" }} />
-          <Typography>{likes.length}</Typography>
+        <Box sx={{ display: "flex", gap: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 0.5,
+              alignItems: "center",
+              cursor: "pointer",
+              "&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)" },
+              "&:active": { transform: "scale(0.9)" },
+            }}
+            onClick={() => toggleLike(id, user?.id)}
+          >
+            <FavoriteIcon sx={{ color: isLiked ? "red" : "gray" }} />
+            <Typography>{likes?.length || 0}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 0.5,
+              cursor: "pointer",
+              "&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)" },
+              "&:active": { transform: "scale(0.9)" },
+            }}
+          >
+            <CommentIcon />
+            <Typography>{comments?.length || 0}</Typography>
+          </Box>
+          <Box
+            sx={{
+              display: "flex",
+              gap: 0.5,
+              cursor: "pointer",
+              "&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)" },
+              "&:active": { transform: "scale(0.9)" },
+            }}
+          >
+            <RemoveRedEyeIcon />
+            <Typography>{countOfVisitors || 0}</Typography>
+          </Box>
         </Box>
-        <Box sx={{ display: "flex", gap: 0.5,cursor: "pointer" ,"&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)"},"&:active": { transform: "scale(0.9)"}}}>
-          <CommentIcon />
-          <Typography>{comments.length}</Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 0.5,cursor: "pointer" ,"&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)"},"&:active": { transform: "scale(0.9)"}}}>
-          <RemoveRedEyeIcon />
-          <Typography>{countOfVisitors}</Typography>
-        </Box>
-        </Box>
-        <Button variant="contained" onClick={() => navigate(`/detail/${blog.id}`, { state: { blog } })}>
+        <Button
+          variant="contained"
+          onClick={() => navigate(`/detail/${id}`, { state: { blog } })}
+        >
           Read More
         </Button>
       </CardActions>

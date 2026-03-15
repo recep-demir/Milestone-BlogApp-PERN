@@ -1,3 +1,4 @@
+// server/src/routes/blog.js
 "use strict"
 
 const router = require('express').Router()
@@ -13,5 +14,9 @@ router.route('/:id')
     .put(permissions.isLogin, blog.update)
     .patch(permissions.isLogin, blog.update)
     .delete(permissions.isLogin, blog.remove) 
+
+// EKLENEN YENİ ROUTE:
+router.route('/:id/postLike')
+    .post(permissions.isLogin, blog.toggleLike)
 
 module.exports = router

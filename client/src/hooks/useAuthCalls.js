@@ -1,52 +1,62 @@
 import React from 'react'
-import { useDispatch } from "react-redux";
-import {fetchFail, fetchStart, logoutSuccess, registerSuccess,loginSuccess } from '../features/authSlice';
+import { useDispatch, useSelector } from "react-redux";
+import { fetchFail, fetchStart, logoutSuccess, registerSuccess, loginSuccess } from '../features/authSlice';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { toastSuccessNotify } from '../helper/ToastNotify';
-import { useSelector } from 'react-redux';
+import { toastSuccessNotify, toastErrorNotify } from '../helper/ToastNotify';
 import useAxios from './useAxios';
 
 const useAuthCalls = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const {token} =useSelector(state => state.auth)
-  const {axiosWithToken}=useAxios()
-  const BASE_URL=import.meta.env.VITE_BASE_URL
+  const { token } = useSelector(state => state.auth)
+  const { axiosWithToken } = useAxios()
+  
+  // Eğer .env dosyasından okuyamazsa otomatik olarak localhost:8000'i kullansın (Invalid URL hatasını çözer)
+  const BASE_URL = import.meta.env.VITE_BASE_URL || "http://127.0.0.1:8000/";
 
   const register = async (userInfo) =>{
     dispatch(fetchStart())
 
     try {
-      const { data } = await axios.post(
-        `${BASE_URL}users`,
-        userInfo);
-        console.log("API Yanıtı:", data);
-        dispatch(registerSuccess(data))        
-        localStorage.setItem("token", data.token)
-        // localStorage.setItem("userId", data.data.id)
-        // localStorage.setItem("userName", data.data.username)
-        toastSuccessNotify("Registered successfully  -  Welcome!" )
-        navigate("/")
+      // 1. Kullanıcı kaydını oluştur
+      const { data } = await axios.post(`${BASE_URL}users/`, userInfo);
+      console.log("Kayıt API Yanıtı:", data);
+      
+      dispatch(registerSuccess(data));        
+      toastSuccessNotify("Registered successfully! Logging in..." );
+
+      // 2. Kayıt başarılı olduktan sonra otomatik olarak Giriş (Login) yap
+      const loginData = {
+        username: userInfo.username,
+        password: userInfo.password
+      };
+      
+      // Auto-login tetikle
+      await login(loginData);
       
     } catch (error) {
-      dispatch(fetchFail())
+      console.error("Kayıt Hatası:", error);
+      dispatch(fetchFail());
+      toastErrorNotify(error.response?.data?.message || "Registration failed!");
     }
   };
+
   const login = async (userInfo) => {
     dispatch(fetchStart())
     try {
-      const { data } = await axios.post(
-        `${BASE_URL}auth/login`,
-        userInfo
-      );
-      dispatch(loginSuccess(data))
-      localStorage.setItem("token", data.token)
-      toastSuccessNotify("Login successful  -  Welcome!")
-      navigate("/")
+      const { data } = await axios.post(`${BASE_URL}auth/login`, userInfo);
+      
+      dispatch(loginSuccess(data));
+      localStorage.setItem("token", data.token); // Login başarılı olunca token'ı kaydet
+      
+      toastSuccessNotify("Login successful - Welcome!");
+      navigate("/");
+      
     } catch (error) {
-        dispatch(fetchFail())
-        
+        console.error("Giriş Hatası:", error);
+        dispatch(fetchFail());
+        toastErrorNotify(error.response?.data?.message || "Login failed!");
     }
   };
 
@@ -66,7 +76,7 @@ const useAuthCalls = () => {
     }
   };
 
-  return {register, login, logout}
+  return { register, login, logout }
 }
 
 export default useAuthCalls
