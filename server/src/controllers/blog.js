@@ -49,7 +49,7 @@ module.exports = {
         const result = await Blog.create(req.body);
         res.status(201).send({ error: false, result });
     },
-        read: async (req, res) => {
+    read: async (req, res) => {
                     /*
         #swagger.tags = ["Blogs"]
         #swagger.summary = "Get Single Blog"
@@ -91,6 +91,7 @@ module.exports = {
 
         res.status(202).send({ error: false, result });
     },
+                
 
     remove: async (req, res) => {
         /*
@@ -108,6 +109,28 @@ module.exports = {
         await Blog.destroy({ where: { id: req.params.id } });
         res.sendStatus(204);
     },
+    
+
+
+    read: async (req, res) => {
+        let data = await Blog.findByPk(req.params.id, {
+            include: [
+                { model: Category, attributes: ["name"] },
+                { model: User, attributes: ["username", "firstName", "lastName"] }
+            ]
+        });
+
+        // DÜZELTME: Okunma sayısını artırıp kaydet
+        if (data) {
+            data.countOfVisitors = (data.countOfVisitors || 0) + 1;
+            await data.save();
+        }
+
+        res.status(200).send({
+            error: false,
+            result: data
+        });
+    },
 
     toggleLike: async (req, res) => {
         /*
@@ -115,9 +138,31 @@ module.exports = {
         #swagger.summary = "Toggle Like (Coming Soon)"
         #swagger.description = "Like system will be added in PostgreSQL version."
         */
-        res.status(200).send({
-            error: false,
-            message: "Toggle like PostgreSQL version coming soon!"
-        });
-    }
+        try {
+            const blog = await Blog.findByPk(req.params.id);
+            if (!blog) throw new Error("Blog not found");
+
+            const userId = req.user.id; 
+            let currentLikes = blog.likes || [];
+
+            if (currentLikes.includes(userId)) {
+                // Önceden beğenmişse, beğeniyi geri çek
+                currentLikes = currentLikes.filter((id) => id !== userId);
+            } else {
+                // Beğenmediyse, ekle
+                currentLikes.push(userId);
+            }
+
+            blog.likes = currentLikes;
+            blog.changed('likes', true); // DÜZELTME: Postgres array güncellemelerinde bu ZORUNLUDUR
+            await blog.save();
+
+            res.status(200).send({
+                error: false,
+                result: blog
+            });
+        } catch (error) {
+            res.status(500).send({ error: true, message: error.message });
+        }
+    },
 };
