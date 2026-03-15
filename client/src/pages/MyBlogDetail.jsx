@@ -25,7 +25,7 @@ const MyBlogDetail = () => {
   console.log("Parametre ID:", id);
   console.log("Tüm Bloglar:", blogs);
 
-  const blog = blogs.find((blog) => blog._id === id);
+  const blog = blogs.find((blog) => blog.id === id);
   if (!blog) return <Typography variant="h6">Blog not found</Typography>;
 
   return (

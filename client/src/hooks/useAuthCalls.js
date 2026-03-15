@@ -24,7 +24,7 @@ const useAuthCalls = () => {
         console.log("API Yanıtı:", data);
         dispatch(registerSuccess(data))        
         localStorage.setItem("token", data.token)
-        // localStorage.setItem("userId", data.data._id)
+        // localStorage.setItem("userId", data.data.id)
         // localStorage.setItem("userName", data.data.username)
         toastSuccessNotify("Registered successfully  -  Welcome!" )
         navigate("/")

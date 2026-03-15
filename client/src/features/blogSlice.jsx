@@ -45,7 +45,7 @@ const blogSlice = createSlice({
       },
 
       toggleLikeInState: (state, { payload }) => {
-        // _id yerine id yaptık
+        // id yerine id yaptık
         const blog = state.blogs.find((b) => b.id === payload.blogId);
         if (blog) {
           // SQL'de array olarak değil de tablo ilişkisi olarak tuttuk.

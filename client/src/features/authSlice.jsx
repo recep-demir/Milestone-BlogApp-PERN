@@ -23,7 +23,7 @@ const authSlice = createSlice({
       state.loading= false;
       // DİKKAT: payload.data yerine payload.result olabilir backend yapına göre
       state.currentUser = payload.result.username;
-      state.userId = payload.result.id; // _id yerine id
+      state.userId = payload.result.id; // id yerine id
       state.email = payload.result.email;
       state.token = payload.token;
     },
@@ -31,7 +31,7 @@ const authSlice = createSlice({
       state.token = payload?.token;
       state.currentUser = payload?.user?.username;
       console.log("autslicadaki curentuser",state.currentUser);
-      state.userId = payload?.user?.id; // _id yerine id yaptık
+      state.userId = payload?.user?.id; // id yerine id yaptık
       console.log("userId autslic",state.userId);
       state.email = payload?.user?.email;
       state.loading = false;

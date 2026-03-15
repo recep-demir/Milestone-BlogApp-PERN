@@ -14,11 +14,11 @@ import { useSelector } from "react-redux";
 
 
 export default function BlogCard({ blog}) {
-  const { _id, title, createdAt, content, image,likes,countOfVisitors,comments } = blog;
+  const { id, title, createdAt, content, image,likes,countOfVisitors,comments } = blog;
   const navigate = useNavigate()
   const { toggleLike } = useBlogCalls();
   const { user } = useSelector((state) => state.auth);
-  const isLiked = likes.includes(user?._id);
+  const isLiked = blog?.likes?.includes(currentUser?.id) || false;
 
   
 const formatDate = (dateString) => {
@@ -28,7 +28,7 @@ const formatDate = (dateString) => {
 
   return (
     <Card
-    id={_id}
+    id={id}
       sx={{
         height: 390,
         display: "flex",
@@ -75,7 +75,7 @@ const formatDate = (dateString) => {
       <Box sx={{ display: "flex", gap: 3 }}>
       <Box sx={{ display: "flex", gap:0.5, alignItems: "center", cursor: "pointer" ,"&:hover": { backgroundColor: "#f0f0f0", boxShadow: "0px 4px 10px rgba(0,0,0,0.2)"},"&:active": { transform: "scale(0.9)"}
         
-       }} onClick={() => toggleLike(_id, user?._id)}>
+       }} onClick={() => toggleLike(id, user?.id)}>
           <FavoriteIcon sx={{ color: isLiked ? "red" : "gray" }} />
           <Typography>{likes.length}</Typography>
         </Box>
