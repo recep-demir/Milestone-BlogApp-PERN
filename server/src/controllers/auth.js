@@ -1,68 +1,65 @@
-"use strict"
+"use strict";
 
-const CustomError = require("../helpers/customError");
-const User = require('../models/user');
-const Token = require('../models/token');
-const passwordEncrypt = require('../helpers/passwordEncrypt');
+const { User, Token } = require("../models/index");
+const passwordEncrypt = require("../helpers/passwordEncrypt");
 
 module.exports = {
-    login: async (req,res) => {
+  login: async (req, res) => {
+    /*
+        #swagger.tags = ["Authentication"]
+        #swagger.summary = "Login"
+    */
+    const { username, password } = req.body;
 
-        /* 
-            #swagger.tags = ['Authentication']
-            #swagger.summary = 'Login'
-            #swagger.description = 'Login with email/username and password'
-            #swagger.parameters['body'] = {
-                in:'body',
-                required:true,
-                schema:{
-                    username:'admin',
-                    password:'1234'
-                }
-            }
-        */
+    if (username && password) {
+      const user = await User.findOne({ 
+        where: { 
+          username, 
+          password: passwordEncrypt(password) 
+        } 
+      });
 
-        const { username, email, password } = req.body;
-         if (!((username || email) && password)) throw new CustomError('username/email and password are required', 401);
-         const user = await User.findOne({ $or: [{ email }, { username }], password });
-         if (!user) throw new CustomError('Incorrect email/username or password', 401);
-         if (!user.isActive) throw new CustomError('This account is not active.');
-
-         let tokenData = await Token.findOne({ userId: user._id });
-
-         if(!tokenData) {
-            tokenData= await Token.create({
-                userId : user._id,
-                token : passwordEncrypt(Date.now() + user._id)
-            })
-         }
-
-         res.status(200).send({
-            error:false,
-            token:tokenData.token,
-            user:user
-         })
-
-    },
-    logout:async (req,res) => {
-        /* 
-            #swagger.tags = ['Authentication']
-            #swagger.summary = 'Logout'
-            #swagger.description = 'Deleted Token'
-        */
-
-        const auth = req.headers?.authorization; 
-        const tokenArr = auth ? auth.split(' ') : null;
-
-        if (tokenArr && tokenArr[0] == 'Token') {
-            const result = await Token.deleteOne({ token: tokenArr[1] });
-
-            res.status(200).send({
-                error: false,
-                result,
-                message: 'Simple Token: Token Deleted. Logout Success.'
-            });
-
+      if (user) {
+        // Token oluştur veya var olanı getir
+        let tokenData = await Token.findOne({ where: { userId: user.id } });
+        
+        if (!tokenData) {
+          tokenData = await Token.create({
+            userId: user.id,
+            token: passwordEncrypt(user.username + Date.now()),
+          });
         }
-}
-}
+
+        res.status(200).send({
+          error: false,
+          token: tokenData.token,
+          user: user,
+        });
+      } else {
+        res.errorStatusCode = 401;
+        throw new Error("Wrong Username or Password.");
+      }
+    } else {
+      res.errorStatusCode = 401;
+      throw new Error("Please enter username and password.");
+    }
+  },
+
+  logout: async (req, res) => {
+    /*
+        #swagger.tags = ["Authentication"]
+        #swagger.summary = "Logout"
+    */
+    const auth = req.headers?.authorization || null;
+    const tokenKey = auth ? auth.split(" ") : null;
+
+    if (tokenKey && tokenKey[0] === "Token") {
+      await Token.destroy({ where: { token: tokenKey[1] } });
+    }
+
+    res.status(200).send({
+      error: false,
+      message: "Logout: Token Deleted.",
+    });
+  },
+};
