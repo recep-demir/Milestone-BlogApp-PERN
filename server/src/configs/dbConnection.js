@@ -1,10 +1,10 @@
+"use strict";
 const { Sequelize } = require('sequelize');
 
-// Docker-compose'da belirlediğimiz ayarlara göre bağlantı cümlesi (URI)
 const sequelize = new Sequelize('blog_db', 'postgres', 'password123', {
   host: 'localhost',
   dialect: 'postgres',
-  logging: false, // Konsolda sürekli SQL sorgularını görmek istemezseniz false yapın
+  logging: false,
 });
 
 const dbConnection = async () => {
