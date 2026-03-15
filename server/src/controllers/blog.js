@@ -3,7 +3,7 @@ const { Blog, User, Category } = require("../models/index");
 
 module.exports = {
     list: async (req, res) => {
-                /*
+        /*
         #swagger.tags = ["Blogs"]
         #swagger.summary = "List Blogs"
         #swagger.description = `
@@ -15,8 +15,27 @@ module.exports = {
                 <li>URL/?<b>limit=10&page=1</b></li>
             </ul>
         */
-        const data = await Blog.findAll({ include: [User, Category] });
-        res.status(200).send({ error: false, count: data.length, result: data });
+        try {
+            // İlişkili modellerle (User ve Category) birlikte verileri getir
+            const data = await Blog.findAll({ 
+                include: [
+                    { model: User, attributes: ['firstName', 'lastName', 'image'] },
+                    { model: Category, attributes: ['name'] }
+                ] 
+            });
+            
+            res.status(200).send({ 
+                error: false, 
+                count: data.length, 
+                result: data 
+            });
+        } catch (error) {
+            console.error("BLOG LIST HATASI:", error);
+            res.status(500).send({
+                error: true,
+                message: error.message
+            });
+        }
     },
     create: async (req, res) => {
                 /*

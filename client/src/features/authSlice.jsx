@@ -21,17 +21,18 @@ const authSlice = createSlice({
     },
     registerSuccess: (state,{payload}) =>{
       state.loading= false;
-      state.currentUser = payload.data.username;
-      state.userId = payload.data._id;
-      state.email = payload.data.email;
+      // DİKKAT: payload.data yerine payload.result olabilir backend yapına göre
+      state.currentUser = payload.result.username;
+      state.userId = payload.result.id; // _id yerine id
+      state.email = payload.result.email;
       state.token = payload.token;
     },
     loginSuccess:(state,{payload})=>{
-      state.token=payload?.token;
-      state.currentUser=payload?.user?.username
-      console.log("autslicadaki curentuser",state.currentUser)
-      state.userId=payload?.user?._id
-      console.log("userId autslic",state.userId)
+      state.token = payload?.token;
+      state.currentUser = payload?.user?.username;
+      console.log("autslicadaki curentuser",state.currentUser);
+      state.userId = payload?.user?.id; // _id yerine id yaptık
+      console.log("userId autslic",state.userId);
       state.email = payload?.user?.email;
       state.loading = false;
     },
@@ -51,4 +52,4 @@ export const {
     loginSuccess,
     logoutSuccess,
   } = authSlice.actions;
-  export default authSlice.reducer;
+export default authSlice.reducer;
