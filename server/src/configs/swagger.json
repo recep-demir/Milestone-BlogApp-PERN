@@ -40,22 +40,19 @@
           "Authentication"
         ],
         "summary": "Login",
-        "description": "Login with email/username and password",
+        "description": "",
         "parameters": [
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
               "type": "object",
               "properties": {
                 "username": {
-                  "type": "string",
-                  "example": "admin"
+                  "example": "any"
                 },
                 "password": {
-                  "type": "string",
-                  "example": "1234"
+                  "example": "any"
                 }
               }
             }
@@ -70,20 +67,28 @@
     },
     "/auth/logout": {
       "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Logout",
         "description": "",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       }
     },
     "/user/": {
       "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "List Users",
         "description": "",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
           }
         }
       },
@@ -93,20 +98,6 @@
         ],
         "summary": "Create User",
         "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "password": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
         "responses": {
           "201": {
             "description": "Created"
@@ -147,36 +138,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "username": {
-                  "type": "string",
-                  "example": "test"
-                },
-                "password": {
-                  "type": "string",
-                  "example": "1234"
-                },
-                "email": {
-                  "type": "string",
-                  "example": "test@site.com"
-                },
-                "firstName": {
-                  "type": "string",
-                  "example": "test"
-                },
-                "lastName": {
-                  "type": "string",
-                  "example": "test"
-                }
-              }
-            }
           }
         ],
         "responses": {
@@ -202,9 +163,6 @@
         "responses": {
           "204": {
             "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found"
           }
         }
       },
@@ -220,36 +178,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "username": {
-                  "type": "string",
-                  "example": "test"
-                },
-                "password": {
-                  "type": "string",
-                  "example": "1234"
-                },
-                "email": {
-                  "type": "string",
-                  "example": "test@site.com"
-                },
-                "firstName": {
-                  "type": "string",
-                  "example": "test"
-                },
-                "lastName": {
-                  "type": "string",
-                  "example": "test"
-                }
-              }
-            }
           }
         ],
         "responses": {
@@ -338,14 +266,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Blog"
-            }
           }
         ],
         "responses": {
@@ -369,8 +289,11 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -386,41 +309,11 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/Blog"
-            }
           }
         ],
         "responses": {
           "202": {
             "description": "Accepted"
-          }
-        }
-      }
-    },
-    "/blogs/{id}/toggle-like": {
-      "post": {
-        "tags": [
-          "Blogs"
-        ],
-        "summary": "Toggle Like on a Blog",
-        "description": "Toggles the current user's like on the blog (adds if not liked, removes if already liked).",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
           }
         }
       }
@@ -431,7 +324,7 @@
           "Categories"
         ],
         "summary": "List Categories",
-        "description": "  You can use <u>filter[] & search[] & sort[] & page & limit</u> queries with endpoint.  <ul> Examples:   <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>   <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>   <li>URL/?<b>sort[field1]=asc&sort[field2]=desc</b></li>   <li>URL/?<b>limit=10&page=1</b></li>  </ul>  ",
+        "description": "",
         "responses": {
           "200": {
             "description": "OK"
@@ -444,16 +337,6 @@
         ],
         "summary": "Create Category",
         "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          }
-        ],
         "responses": {
           "201": {
             "description": "Created"
@@ -494,14 +377,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
           }
         ],
         "responses": {
@@ -525,8 +400,11 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -542,14 +420,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
           }
         ],
         "responses": {
@@ -565,7 +435,7 @@
           "Comments"
         ],
         "summary": "List Comments",
-        "description": "  You can use <u>filter[] & search[] & sort[] & page & limit</u> queries with endpoint.  <ul> Examples:   <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>   <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>   <li>URL/?<b>sort[field1]=asc&sort[field2]=desc</b></li>   <li>URL/?<b>limit=10&page=1</b></li>  </ul>  ",
+        "description": "",
         "responses": {
           "200": {
             "description": "OK"
@@ -582,9 +452,13 @@
           {
             "name": "body",
             "in": "body",
-            "required": true,
             "schema": {
-              "$ref": "#/definitions/Comment"
+              "type": "object",
+              "properties": {
+                "userId": {
+                  "example": "any"
+                }
+              }
             }
           }
         ],
@@ -628,14 +502,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Comment"
-            }
           }
         ],
         "responses": {
@@ -659,8 +525,11 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       },
@@ -676,14 +545,6 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Comment"
-            }
           }
         ],
         "responses": {
