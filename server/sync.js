@@ -1,62 +1,53 @@
 "use strict";
-/* -------------------------------------------------------
-    EXPRESSJS - BLOG Project with Mongoose
-------------------------------------------------------- */
 
-// Model dosyalarını doğru yollarla içe aktar
-const { mongoose } = require('./src/configs/dbConnection');
-const User = require('./src/models/user');
-const Category = require('./src/models/category');
-const Blog = require('./src/models/blog');
-
-/* ------------------------------------------------------- */
+const { User, Category, Blog } = require('./src/models/index');
 
 module.exports = async () => {
     try {
-        await User.deleteMany().then(() => console.log(' - User Deleted All'));
-        await Category.deleteMany().then(() => console.log(' - Category Deleted All'));
-        await Blog.deleteMany().then(() => console.log(' - Blog Deleted All'));
+        // Tabloları temizle (Sıralama önemli: Önce Blog sonra Category/User)
+        await Blog.destroy({ where: {}, cascade: true });
+        await Category.destroy({ where: {}, cascade: true });
+        await User.destroy({ where: {}, cascade: true });
 
+        console.log(' - Eski veriler temizlendi.');
 
+        // 1. Test Kullanıcısı Oluştur
         const user = await User.create({
             username: "testuser",
-            password: "Test@1234", 
+            password: "Password123", // passwordEncrypt hook'u ile şifrelenecek
             email: "test@test.com",
-            firstName: "Test",
-            lastName: "Test",
-            isActive: true,
-            isStaff: false,
-            isAdmin: false,
+            firstName: "Recep",
+            lastName: "Demir",
+            isAdmin: true
         });
-        console.log(' - Test User Created:', user.email);
 
-        const category = await Category.create({
-            name: 'Test Category',
-        });
-        console.log(' - Test Category Created:', category.name);
+        // 2. Örnek Kategoriler
+        const cats = await Category.bulkCreate([
+            { name: 'Yazılım' },
+            { name: 'Teknoloji' },
+            { name: 'Gezi' }
+        ]);
 
-        
-        const blogPosts = [];
-        for (let i = 0; i < 10; i++) { 
-            const blogPost = await Blog.create({
-                userId: user._id,
-                categoryId: category._id,
-                title: `Test Post ${i + 1}`,
-                content: `This is the content of test post ${i + 1}.`,
-                image: `https://example.com/test-image-${i + 1}.jpg`, 
-                isPublish: i % 2 === 0, 
-                likes: [], 
-                countOfVisitors: 0, 
-            });
-            blogPosts.push(blogPost);
-        }
-        console.log(` - ${blogPosts.length} Test Blog Posts Created`);
+        // 3. Örnek Bloglar
+        await Blog.bulkCreate([
+            {
+                title: 'PERN Stack Projem',
+                content: 'MongoDBden PostgreSQLe geçiş yaptım!',
+                image: 'https://picsum.photos/800/400',
+                userId: user.id,
+                categoryId: cats[0].id
+            },
+            {
+                title: 'Docker ve Docker Compose',
+                content: 'Docker ile postgres ayağa kaldırmak harika.',
+                image: 'https://picsum.photos/800/401',
+                userId: user.id,
+                categoryId: cats[1].id
+            }
+        ]);
 
-        
-        console.log('* Synchronized.');
+        console.log('* Örnek veriler başarıyla yüklendi.');
     } catch (error) {
-        console.error('Error during synchronization:', error);
-        throw error; 
+        console.error('Senkronizasyon Hatası:', error);
     }
 };
-

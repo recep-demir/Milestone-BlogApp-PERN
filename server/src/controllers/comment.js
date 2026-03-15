@@ -14,6 +14,14 @@ module.exports = {
         /*
             #swagger.tags = ["Comments"]
             #swagger.summary = "Create Comment"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: {
+                    blogId: 1,
+                    comment: 'Harika bir yazı olmuş!'
+                }
+            }
         */
         if (req.user) req.body.userId = req.user.id;
         const data = await Comment.create(req.body);

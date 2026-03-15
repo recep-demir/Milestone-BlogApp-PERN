@@ -14,6 +14,11 @@ module.exports = {
         /*
             #swagger.tags = ["Categories"]
             #swagger.summary = "Create Category"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { name: 'Technology' }
+            }
         */
         const data = await Category.create(req.body);
         res.status(201).send({ error: false, result: data });
@@ -30,6 +35,10 @@ module.exports = {
         /*
             #swagger.tags = ["Categories"]
             #swagger.summary = "Update Category"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                schema: { name: 'New Category Name' }
+            }
         */
         await Category.update(req.body, { where: { id: req.params.id } });
         const data = await Category.findByPk(req.params.id);

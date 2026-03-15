@@ -13,7 +13,7 @@
       "name": "ISC"
     }
   },
-  "host": "localhost:8000",
+  "host": "127.0.0.1:8000",
   "basePath": "/",
   "schemes": [
     "http",
@@ -98,6 +98,38 @@
         ],
         "summary": "Create User",
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "username": {
+                  "type": "string",
+                  "example": "testuser"
+                },
+                "password": {
+                  "type": "string",
+                  "example": "Password123"
+                },
+                "email": {
+                  "type": "string",
+                  "example": "test@mail.com"
+                },
+                "firstName": {
+                  "type": "string",
+                  "example": "Recep"
+                },
+                "lastName": {
+                  "type": "string",
+                  "example": "Demir"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "Created"
@@ -138,11 +170,32 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "example": "New Name"
+                },
+                "lastName": {
+                  "type": "string",
+                  "example": "New Surname"
+                },
+                "city": {
+                  "type": "string",
+                  "example": "Istanbul"
+                }
+              }
+            }
           }
         ],
         "responses": {
-          "202": {
-            "description": "Accepted"
+          "201": {
+            "description": "Created"
           }
         }
       },
@@ -178,11 +231,32 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "firstName": {
+                  "type": "string",
+                  "example": "New Name"
+                },
+                "lastName": {
+                  "type": "string",
+                  "example": "New Surname"
+                },
+                "city": {
+                  "type": "string",
+                  "example": "Istanbul"
+                }
+              }
+            }
           }
         ],
         "responses": {
-          "202": {
-            "description": "Accepted"
+          "201": {
+            "description": "Created"
           }
         }
       }
@@ -337,6 +411,22 @@
         ],
         "summary": "Create Category",
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "Technology"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "201": {
             "description": "Created"
@@ -377,6 +467,19 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "New Category Name"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -420,6 +523,19 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "example": "New Category Name"
+                }
+              }
+            }
           }
         ],
         "responses": {
@@ -452,11 +568,17 @@
           {
             "name": "body",
             "in": "body",
+            "required": true,
             "schema": {
               "type": "object",
               "properties": {
-                "userId": {
-                  "example": "any"
+                "blogId": {
+                  "type": "number",
+                  "example": 1
+                },
+                "comment": {
+                  "type": "string",
+                  "example": "Harika bir yazı olmuş!"
                 }
               }
             }

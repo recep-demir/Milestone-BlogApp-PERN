@@ -18,6 +18,47 @@ module.exports = {
         /*
             #swagger.tags = ["Users"]
             #swagger.summary = "Create User"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: {
+                    username: 'testuser',
+                    password: 'Password123',
+                    email: 'test@mail.com',
+                    firstName: 'Recep',
+                    lastName: 'Demir'
+                }
+            }
+        */
+        const data = await User.create(req.body);
+        res.status(201).send({
+            error: false,
+            result: data,
+        });
+    },
+    read: async (req, res) => {
+        /*
+            #swagger.tags = ["Users"]
+            #swagger.summary = "Get Single User"
+        */
+        const data = await User.findByPk(req.params.id);
+        res.status(200).send({
+            error: false,
+            result: data,
+        });
+    },
+    update: async (req, res) => {
+        /*
+            #swagger.tags = ["Users"]
+            #swagger.summary = "Update User"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                schema: {
+                    firstName: 'New Name',
+                    lastName: 'New Surname',
+                    city: 'Istanbul'
+                }
+            }
         */
         const data = await User.create(req.body);
         res.status(201).send({
