@@ -49,28 +49,28 @@ module.exports = {
         const result = await Blog.create(req.body);
         res.status(201).send({ error: false, result });
     },
-
-    read: async (req, res) => {
-        /*
+        read: async (req, res) => {
+                    /*
         #swagger.tags = ["Blogs"]
         #swagger.summary = "Get Single Blog"
         */
-        const result = await Blog.findByPk(req.params.id, {
+        const data = await Blog.findByPk(req.params.id, {
             include: [
                 { model: Category, attributes: ["name"] },
-                { model: User, attributes: ["username", "email"] },
-                { model: Comment }
+                { model: User, attributes: ["username", "firstName", "lastName"] }
             ]
         });
 
-        if (!result) {
-            res.errorStatusCode = 404;
-            throw new Error("Blog not found");
+        // EKLENEN KISIM: Ziyaret edilince sayıyı 1 artır ve kaydet
+        if (data) {
+            data.countOfVisitors = (data.countOfVisitors || 0) + 1;
+            await data.save();
         }
 
-        await result.increment("countOfVisitors");
-
-        res.status(200).send({ error: false, result });
+        res.status(200).send({
+            error: false,
+            result: data
+        });
     },
 
     update: async (req, res) => {

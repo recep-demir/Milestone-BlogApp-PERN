@@ -3,8 +3,9 @@ import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, 
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
 import RssFeedIcon from '@mui/icons-material/RssFeed';
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuthCalls from "../hooks/useAuthCalls";
+import { useDispatch } from "react-redux";
 
 const pages = [
   { name: "Dashboard", path: "/" },
@@ -21,23 +22,31 @@ function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate(); 
-  const {logout} = useAuthCalls()
+  const {logout} = useAuthCalls();
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
   const handleOpenUserMenu = (event) => setAnchorElUser(event.currentTarget);
   const handleCloseNavMenu = () => setAnchorElNav(null);
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
+// Sayfalar arası geçişi yöneten fonksiyon
+  const handleNavigate = (path) => {
+    handleCloseNavMenu();
+    handleCloseUserMenu();
+    
+    // window.location.href sildik! Artık anında geçiş yapacak.
+    navigate(path);
+  };
+
   return (
     <AppBar position="static" sx={{ backgroundColor: "secondary.second" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <RssFeedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+          <RssFeedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1, cursor: "pointer" }} onClick={() => handleNavigate("/")} />
           <Typography
             variant="h6"
             noWrap
-            component={Link}
-            to="/"
+            onClick={() => handleNavigate("/")}
             sx={{
               mr: 5,
               display: { xs: "none", md: "flex" },
@@ -46,6 +55,7 @@ function Navbar() {
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
+              cursor: "pointer" // Tıklanabilir olduğunu göster
             }}
           >
              BLOG
@@ -62,23 +72,21 @@ function Navbar() {
               sx={{ display: { xs: "block", md: "none" } }}
             >
               {pages.map((page) => (
-                <MenuItem key={page.name} onClick={() => navigate(page.path)}>
+                <MenuItem key={page.name} onClick={() => handleNavigate(page.path)}>
                   <Typography textAlign="center">{page.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
 
-          
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
-              <Button key={page.name} component={Link} to={page.path} sx={{ my: 2, color: "white", display: "block" }}>
+              <Button key={page.name} onClick={() => handleNavigate(page.path)} sx={{ my: 2, color: "white", display: "block" }}>
                 {page.name}
               </Button>
             ))}
           </Box>
 
-          
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
@@ -92,8 +100,7 @@ function Navbar() {
               sx={{ mt: "45px"}}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting.name} onClick={setting.name === "Logout" ? logout : () => navigate(setting.path)} sx={{ width: "140px",height:"40px", justifyContent: "center" }} > 
-    
+                <MenuItem key={setting.name} onClick={setting.name === "Logout" ? logout : () => handleNavigate(setting.path)} sx={{ width: "140px",height:"40px", justifyContent: "center" }} > 
                   <Typography textAlign="center" sx={{ fontSize: "1.1rem" }}>{setting.name}</Typography>
                 </MenuItem>
               ))}
