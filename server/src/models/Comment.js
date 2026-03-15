@@ -1,27 +1,13 @@
-"use strict"
+"use strict";
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../configs/dbConnection');
 
-const {mongoose}= require("../configs/dbConnection")
-
-const CommentSchema = new mongoose.Schema({
-    userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-    },
-
-    blogId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Blog',
-    required: true
-    },
-    comment:{
-        type:String,
-        required: true,
-
+const Comment = sequelize.define('Comment', {
+    comment: {
+        type: DataTypes.TEXT,
+        allowNull: false,
     }
+    // NOT: blogId ve userId alanlarını Sequelize otomatik ekleyecek.
+});
 
-
-},{collection: 'comments',
-    timestamps: true})
-
-    module.exports = mongoose.model("Comment",CommentSchema)
+module.exports = Comment;
