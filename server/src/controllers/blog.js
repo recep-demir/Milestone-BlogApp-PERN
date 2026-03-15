@@ -1,6 +1,6 @@
 "use strict"
 
-const Blog =require('../models/blog')
+const Blog = require('../models/Blog')
 const CustomError = require('../helpers/customError');
 
 
