@@ -19,7 +19,10 @@ const PORT = process.env?.PORT || 8000
 
 
 const { dbConnection } = require('./src/configs/dbConnection');
-dbConnection();
+dbConnection().then(() => {
+    // SADECE VERİLERİ YÜKLEMEK İSTEDİĞİNDE BU SATIRI AÇ:
+    // require('./sync')(); 
+});
 
 app.all('/', (req, res) => {
   res.send({
