@@ -23,20 +23,20 @@ const Detail = () => {
 
 
   useEffect(()=>{
-    getCommentsByID(blog._id)
-  },[blog._id])
+    getCommentsByID(blog.id)
+  },[blog.id])
 
-  const blogComments = comments.filter((comment) => comment.blogId === blog._id);
+  const blogComments = comments.filter((comment) => comment.blogId === blog.id);
   console.log(blog.blogId)
   console.log("Tüm Yorumlar:", comments);
-  console.log("Şu Anki Blogid:", blog._id);
+  console.log("Şu Anki Blogid:", blog.id);
   console.log("tüm bloglar",blog)
 
   const handleAddComment = () => {
     if (Content.trim()) {
-      addComment(blog._id, Content);
+      addComment(blog.id, Content);
       setContent("");
-      getCommentsByID(blog._id);
+      getCommentsByID(blog.id);
     }
   };
 
@@ -96,7 +96,7 @@ const Detail = () => {
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6">Comments</Typography>
         {blogComments.map((comment) => (
-          <Box key={comment._id} sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}>
+          <Box key={comment.id} sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}>
             <Typography variant="body2" sx={{ fontWeight: "bold" }}>
               {comment.userId?.username || "Anonymous"}
             </Typography>
