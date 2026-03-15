@@ -1,11 +1,26 @@
-"use strict"
+const { Sequelize } = require('sequelize');
 
-const mongoose = require ("mongoose")
+// Docker-compose'da belirlediğimiz ayarlara göre bağlantı cümlesi (URI)
+const sequelize = new Sequelize('blog_db', 'postgres', 'password123', {
+  host: 'localhost',
+  dialect: 'postgres',
+  logging: false, // Konsolda sürekli SQL sorgularını görmek istemezseniz false yapın
+});
 
-const dbConnection = function () {
-    mongoose.connect(process.env.MONGODB)
-    .then(()=>console.log('* DB Connected *'))
-    .catch((err)=> console.log('*DB Not Connected *', err))
-}
+const dbConnection = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('* PostgreSQL Veritabanı Bağlantısı Başarılı *');
+    
+    // İlişkileri yükle
+    require('../models/index');
 
-module.exports = {mongoose, dbConnection}
+    // Tabloları veritabanıyla senkronize et
+    await sequelize.sync({ alter: true }); 
+    console.log('* Tablolar Senkronize Edildi *');
+  } catch (error) {
+    console.error('* Veritabanı Bağlantı Hatası:', error);
+  }
+};
+
+module.exports = { sequelize, dbConnection };
