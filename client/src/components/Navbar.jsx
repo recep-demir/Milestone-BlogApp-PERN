@@ -3,7 +3,7 @@ import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, 
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
 import RssFeedIcon from '@mui/icons-material/RssFeed';
-import { useNavigate } from "react-router-dom";
+import { useNavigate,useLocation } from "react-router-dom";
 import useAuthCalls from "../hooks/useAuthCalls";
 import { useDispatch } from "react-redux";
 
@@ -22,6 +22,7 @@ function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate(); 
+  const location = useLocation();
   const {logout} = useAuthCalls();
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
@@ -30,12 +31,16 @@ function Navbar() {
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
 // Sayfalar arası geçişi yöneten fonksiyon
-  const handleNavigate = (path) => {
+const handleNavigate = (path) => {
     handleCloseNavMenu();
     handleCloseUserMenu();
     
-    // window.location.href sildik! Artık anında geçiş yapacak.
-    navigate(path);
+    // Eğer Anasayfadaysak (Pagination 2. sayfada olabiliriz) sayfayı yenileyerek başa sar
+    if (path === "/" && location.pathname === "/") {
+      window.location.reload(); 
+    } else {
+      navigate(path);
+    }
   };
 
   return (
