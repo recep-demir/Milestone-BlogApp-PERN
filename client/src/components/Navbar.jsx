@@ -1,11 +1,10 @@
 import * as React from "react";
-import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Avatar, Button, Tooltip, MenuItem } from "@mui/material";
+import { AppBar, Box, Toolbar, IconButton, Typography, Menu, Container, Button, Tooltip, MenuItem } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import PersonIcon from "@mui/icons-material/Person";
 import RssFeedIcon from '@mui/icons-material/RssFeed';
-import { useNavigate,useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuthCalls from "../hooks/useAuthCalls";
-import { useDispatch } from "react-redux";
 
 const pages = [
   { name: "Dashboard", path: "/" },
@@ -22,7 +21,6 @@ function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const navigate = useNavigate(); 
-  const location = useLocation();
   const {logout} = useAuthCalls();
 
   const handleOpenNavMenu = (event) => setAnchorElNav(event.currentTarget);
@@ -30,24 +28,25 @@ function Navbar() {
   const handleCloseNavMenu = () => setAnchorElNav(null);
   const handleCloseUserMenu = () => setAnchorElUser(null);
 
-// Sayfalar arası geçişi yöneten fonksiyon
-const handleNavigate = (path) => {
+// ŞİMŞEK HIZINDA YÖNLENDİRME 
+  const handleNavigate = (path) => {
     handleCloseNavMenu();
     handleCloseUserMenu();
     
-    // Eğer Anasayfadaysak (Pagination 2. sayfada olabiliriz) sayfayı yenileyerek başa sar
-    if (path === "/" && location.pathname === "/") {
-      window.location.reload(); 
+    if (path === "/") {
+      navigate("/?page=1"); // Logoya/Dashboard'a tıklayınca ZORLA 1. sayfaya atar!
     } else {
       navigate(path);
     }
+    
+    window.scrollTo(0, 0); // Diğer sayfalara geçince en üste kaydırır
   };
 
   return (
     <AppBar position="static" sx={{ backgroundColor: "secondary.second" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <RssFeedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1, cursor: "pointer" }} onClick={() => handleNavigate("/")} />
+          <RssFeedIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1, cursor:"pointer" }} onClick={() => handleNavigate("/")} />
           <Typography
             variant="h6"
             noWrap
@@ -60,7 +59,7 @@ const handleNavigate = (path) => {
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
-              cursor: "pointer" // Tıklanabilir olduğunu göster
+              cursor: "pointer"
             }}
           >
              BLOG
@@ -83,7 +82,7 @@ const handleNavigate = (path) => {
               ))}
             </Menu>
           </Box>
-
+          
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page) => (
               <Button key={page.name} onClick={() => handleNavigate(page.path)} sx={{ my: 2, color: "white", display: "block" }}>
@@ -91,7 +90,7 @@ const handleNavigate = (path) => {
               </Button>
             ))}
           </Box>
-
+          
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
