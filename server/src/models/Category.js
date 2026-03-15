@@ -1,19 +1,13 @@
-"use strict"
+"use strict";
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../configs/dbConnection');
 
-const { mongoose } = require('../configs/dbConnection')
-
-const CategorySchema = new mongoose.Schema({
-
+const Category = sequelize.define('Category', {
     name: {
-        type: String,
-        trim: true,
-        required: true,
-        unique: true,
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true
     }
-
-}, {
-    collection: 'categories',
-    timestamps: true
 });
 
-module.exports = mongoose.model("Category", CategorySchema);
+module.exports = Category;
