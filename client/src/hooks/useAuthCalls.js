@@ -62,17 +62,20 @@ const useAuthCalls = () => {
 
   const logout = async () => {
     dispatch(fetchStart());
-
     try {
-      await axiosWithToken.get("auth/logout/")
+      // DÜZELTME BURADA: get yerine post kullanıyoruz!
+      await axiosWithToken.post("auth/logout/")
       
       localStorage.removeItem("token");      
       dispatch(logoutSuccess())
       toastSuccessNotify("User logged out successfully")
       navigate("/login");
     } catch (error) {
-      console.log(error)
-      dispatch(fetchFail())
+      console.log("Logout Error:", error)
+      // Hata alsa bile (örneğin token çoktan öldüyse) localden temizleyip çıkış yaptır
+      localStorage.removeItem("token");      
+      dispatch(logoutSuccess())
+      navigate("/login");
     }
   };
 
