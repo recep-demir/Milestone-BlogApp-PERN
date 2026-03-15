@@ -1,5 +1,7 @@
 "use strict";
-const { DataTypes } = require('sequelize');
+// 1. DataTypes'ı doğrudan sequelize kütüphanesinden alıyoruz:
+const { DataTypes } = require('sequelize'); 
+// 2. Kendi oluşturduğumuz bağlantıdan sadece sequelize'ı alıyoruz:
 const { sequelize } = require('../configs/dbConnection');
 
 const Blog = sequelize.define('Blog', {
@@ -18,11 +20,14 @@ const Blog = sequelize.define('Blog', {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
     },
+    likes: {
+        type: DataTypes.ARRAY(DataTypes.INTEGER), // Like atan User ID'lerini tutacak Dizi
+        defaultValue: []
+    },
     countOfVisitors: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER, // Okunma sayısını tutacak Sayı
         defaultValue: 0,
     }
-    // NOT: userId ve categoryId alanlarını ilişki kurarken Sequelize otomatik ekleyecek.
 });
 
 module.exports = Blog;
