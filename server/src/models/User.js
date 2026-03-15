@@ -1,64 +1,42 @@
 "use strict";
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../configs/dbConnection');
+const passwordEncrypt = require('../helpers/passwordEncrypt');
 
-const { mongoose } = require('../configs/dbConnection');
-const passwordEncrypt = require('../helpers/passwordEncrypt')
-
-const UserSchema = new mongoose.Schema({
-
+const User = sequelize.define('User', {
     username: {
-        type: String,
-        trim: true,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
         unique: true,
-        index: true
     },
-
     password: {
-        type: String,
-        trim: true,
-        required: true,
-        set:(password)=>passwordEncrypt(password)
+        type: DataTypes.STRING,
+        allowNull: false,
     },
-
     email: {
-        type: String,
-        trim: true,
-        required: true,
+        type: DataTypes.STRING,
+        allowNull: false,
         unique: true,
-        index: true,
-        validate:[ (email)=>/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email) ,"Please enter a valid email address" ]
+        validate: { isEmail: true }
     },
-
-    firstName: {
-        type: String,
-        trim: true,
-        required: true,
-    },
-
-    lastName: {
-        type: String,
-        trim: true,
-        required: true,
-    },
-
-    isActive: {
-        type: Boolean,
-        default: true
-    },
-
-    isStaff: {
-        type: Boolean,
-        default: false
-    },
-
+    firstName: { type: DataTypes.STRING },
+    lastName: { type: DataTypes.STRING },
+    image: { type: DataTypes.STRING },
+    city: { type: DataTypes.STRING },
+    bio: { type: DataTypes.TEXT },
     isAdmin: {
-        type: Boolean,
-        default: false
-    },
-
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    }
 }, {
-    collection: 'users',
-    timestamps: true
+    hooks: {
+        beforeCreate: (user) => {
+            if (user.password) user.password = passwordEncrypt(user.password);
+        },
+        beforeUpdate: (user) => {
+            if (user.changed('password')) user.password = passwordEncrypt(user.password);
+        }
+    }
 });
 
-module.exports = mongoose.model("User", UserSchema);
+module.exports = User;
