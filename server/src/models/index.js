@@ -1,4 +1,5 @@
 "use strict";
+const { sequelize } = require('../configs/dbConnection'); // Bağlantıyı al
 const User = require('./User');
 const Blog = require('./Blog');
 const Category = require('./Category');
@@ -26,6 +27,7 @@ User.hasMany(Comment, { foreignKey: 'userId', onDelete: 'CASCADE' });
 Comment.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = {
+    sequelize,
     User,
     Blog,
     Category,
