@@ -1,13 +1,9 @@
 "use strict"
-
-const Blog = require('../models/Blog')
-const CustomError = require('../helpers/customError');
-
+const { Blog, User, Category } = require("../models/index");
 
 module.exports = {
     list: async (req, res) => {
-
-        /*
+                /*
         #swagger.tags = ["Blogs"]
         #swagger.summary = "List Blogs"
         #swagger.description = `
@@ -19,28 +15,11 @@ module.exports = {
                 <li>URL/?<b>limit=10&page=1</b></li>
             </ul>
         */
-    
-
-        const result = await res.getModelList(Blog, {},[
-            { path: 'categoryId', select: 'name' },
-            { path: 'userId', select: 'username' },
-            { path: 'comments', populate: { path: 'userId', select: 'username' } },
-            { path: 'likes', select: 'username' }
-        ])
-
-        // const result = await res.getModelList(Blog, {}, ['categoryId', 'userId']);
-
-        res.status(200).send({
-            error: false,
-            details: await res.getModelListDetails(Blog),
-            result
-
-        })
+        const data = await Blog.findAll({ include: [User, Category] });
+        res.status(200).send({ error: false, count: data.length, result: data });
     },
-
-    create: async (req,res) => {
-
-        /*
+    create: async (req, res) => {
+                /*
         #swagger.tags = ["Blogs"]
         #swagger.summary = "Create Blog"
         #swagger.parameters['body'] = {
@@ -51,120 +30,34 @@ module.exports = {
             }
         }
         */
-       req.body.userId = req.user._id
-        const result = await Blog.create(req.body)
-
-        await Blog.findByIdAndUpdate(req.body.blogId,{
-            $push: { comments: result._id }
-        })
-
-        res.status(201).send({
-            error:false,
-            result
-        })
-
-
+        if (req.user) req.body.userId = req.user.id;
+        const data = await Blog.create(req.body);
+        res.status(201).send({ error: false, result: data });
     },
-    read: async (req,res) => {
-
+    read: async (req, res) => {
         /*
-        #swagger.tags = ["Blogs"]
-        #swagger.summary = "Get Single Blog"
+            #swagger.tags = ["Blogs"]
+            #swagger.summary = "Get Single Blog"
         */
-
-        const result = await Blog.findById(req.params.id).populate([
-            { path: 'categoryId', select: 'name' },
-            { path: 'userId', select: 'username email' },
-            { path: 'comments', populate: { path: 'userId', select: 'username' } },
-            { path: 'likes', select: 'username' }
-        ])
-
-        await Blog.findByIdAndUpdate(req.params.id, { $inc: { countOfVisitors: 1 } })
-
-
-        if(!result) throw new CustomError("Blog not found",404);
-
-        res.status(200).send({
-            error:false,
-            result
-        })
-
+        const data = await Blog.findByPk(req.params.id, { include: [User, Category] });
+        if (data) await data.increment('countOfVisitors');
+        res.status(200).send({ error: false, result: data });
     },
-
     update: async (req, res) => {
         /*
-        #swagger.tags = ["Blogs"]
-        #swagger.summary = "Update Blog"
-        #swagger.parameters['body'] = {
-            in: 'body',
-            required: true,
-            schema: {
-               $ref: "#/components/schemas/Blog"
-            }
-        }
+            #swagger.tags = ["Blogs"]
+            #swagger.summary = "Update Blog"
         */
-
-
-        const result = await Blog.findByIdAndUpdate(req.params.id, req.body, {
-            runValidators: true,
-            new: true,
-        });
-        if (result.userId.toString() !== req.user._id.toString()) {throw new CustomError("You are not authorized", 403)}
-
-    if (!result) throw new CustomError("Update failed, blog not found", 404);
-
-        res.status(202).send({
-        error: false,
-        result,
-        });
-  },
-
-  deletee: async (req, res) => {
+        await Blog.update(req.body, { where: { id: req.params.id } });
+        const data = await Blog.findByPk(req.params.id);
+        res.status(202).send({ error: false, result: data });
+    },
+    remove: async (req, res) => {
         /*
             #swagger.tags = ["Blogs"]
             #swagger.summary = "Delete Blog"
         */
-
-        const result = await Blog.findById(req.params.id);
-
-        if (!result) throw new CustomError("Delete failed, blog not found or already deleted", 404);
-       if (result.userId.toString() !== req.user._id.toString()) {throw new CustomError("You are not authorized", 403)}
-
-       await Blog.findByIdAndDelete(req.params.id);
-
-        res.status(200).send({
-            error: false,
-            result
-        });
+        const data = await Blog.destroy({ where: { id: req.params.id } });
+        res.sendStatus(data ? 204 : 404);
     },
-    toggleLike: async (req, res) => {
-        /*
-        #swagger.tags = ["Blogs"]
-        #swagger.summary = "Toggle Like on a Blog"
-        #swagger.description = "Toggles the current user's like on the blog (adds if not liked, removes if already liked)."
-        */
-        const blogId = req.params.id;
-        const userId = req.user._id;
-
-        const blog = await Blog.findById(blogId);
-        if (!blog) throw new CustomError("Blog not found", 404);
-
-        const hasLiked = blog.likes.includes(userId);
-        const update = hasLiked
-            ? { $pull: { likes: userId } }
-            : { $push: { likes: userId } };
-
-        const result = await Blog.findByIdAndUpdate(
-            blogId,
-            update,
-            { new: true, runValidators: true }
-        ).populate('likes', 'username');
-
-        res.status(200).send({
-            error: false,
-            message: hasLiked ? "Blog unliked successfully" : "Blog liked successfully",
-            result: { ...result.toObject(), likeCount: result.likes.length }
-        });
-    }
-
-    }
+};
