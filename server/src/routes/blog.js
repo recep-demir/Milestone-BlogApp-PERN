@@ -12,6 +12,6 @@ router.route('/:id')
     .get(blog.read)
     .put(permissions.isLogin, blog.update)
     .patch(permissions.isLogin, blog.update)
-    .delete(permissions.isLogin, blog.remove) // BURASI DEĞİŞTİ
+    .delete(permissions.isLogin, blog.remove) 
 
 module.exports = router

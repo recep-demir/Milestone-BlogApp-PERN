@@ -1,5 +1,5 @@
-"use strict"
-const { Blog, User, Category } = require("../models/index");
+"use strict";
+const { Blog, User, Category, Comment } = require("../models/index");
 
 module.exports = {
     list: async (req, res) => {
@@ -16,67 +16,108 @@ module.exports = {
             </ul>
         */
         try {
-            // İlişkili modellerle (User ve Category) birlikte verileri getir
-            const data = await Blog.findAll({ 
+            const result = await Blog.findAll({
                 include: [
-                    { model: User, attributes: ['firstName', 'lastName', 'image'] },
-                    { model: Category, attributes: ['name'] }
-                ] 
+                    { model: Category, attributes: ["name"] },
+                    { model: User, attributes: ["username", "firstName", "lastName"] }
+                ]
             });
-            
-            res.status(200).send({ 
-                error: false, 
-                count: data.length, 
-                result: data 
+
+            res.status(200).send({
+                error: false,
+                count: result.length,
+                result
             });
         } catch (error) {
-            console.error("BLOG LIST HATASI:", error);
-            res.status(500).send({
-                error: true,
-                message: error.message
-            });
+            console.error("BLOG LIST ERROR:", error);
+            res.status(500).send({ error: true, message: error.message });
         }
     },
+
     create: async (req, res) => {
-                /*
+        /*
         #swagger.tags = ["Blogs"]
         #swagger.summary = "Create Blog"
         #swagger.parameters['body'] = {
             in: 'body',
             required: true,
-            schema: {
-               $ref: "#/components/schemas/Blog"
-            }
+            schema: { $ref: "#/components/schemas/Blog" }
         }
         */
         if (req.user) req.body.userId = req.user.id;
-        const data = await Blog.create(req.body);
-        res.status(201).send({ error: false, result: data });
+
+        const result = await Blog.create(req.body);
+        res.status(201).send({ error: false, result });
     },
+
     read: async (req, res) => {
         /*
-            #swagger.tags = ["Blogs"]
-            #swagger.summary = "Get Single Blog"
+        #swagger.tags = ["Blogs"]
+        #swagger.summary = "Get Single Blog"
         */
-        const data = await Blog.findByPk(req.params.id, { include: [User, Category] });
-        if (data) await data.increment('countOfVisitors');
-        res.status(200).send({ error: false, result: data });
+        const result = await Blog.findByPk(req.params.id, {
+            include: [
+                { model: Category, attributes: ["name"] },
+                { model: User, attributes: ["username", "email"] },
+                { model: Comment }
+            ]
+        });
+
+        if (!result) {
+            res.errorStatusCode = 404;
+            throw new Error("Blog not found");
+        }
+
+        await result.increment("countOfVisitors");
+
+        res.status(200).send({ error: false, result });
     },
+
     update: async (req, res) => {
         /*
-            #swagger.tags = ["Blogs"]
-            #swagger.summary = "Update Blog"
+        #swagger.tags = ["Blogs"]
+        #swagger.summary = "Update Blog"
         */
+        const blog = await Blog.findByPk(req.params.id);
+        if (!blog) throw new Error("Blog not found");
+
+        if (blog.userId !== req.user.id && !req.user.isAdmin) {
+            res.errorStatusCode = 403;
+            throw new Error("You are not authorized");
+        }
+
         await Blog.update(req.body, { where: { id: req.params.id } });
-        const data = await Blog.findByPk(req.params.id);
-        res.status(202).send({ error: false, result: data });
+        const result = await Blog.findByPk(req.params.id);
+
+        res.status(202).send({ error: false, result });
     },
+
     remove: async (req, res) => {
         /*
-            #swagger.tags = ["Blogs"]
-            #swagger.summary = "Delete Blog"
+        #swagger.tags = ["Blogs"]
+        #swagger.summary = "Delete Blog"
         */
-        const data = await Blog.destroy({ where: { id: req.params.id } });
-        res.sendStatus(data ? 204 : 404);
+        const blog = await Blog.findByPk(req.params.id);
+        if (!blog) throw new Error("Blog not found");
+
+        if (blog.userId !== req.user.id && !req.user.isAdmin) {
+            res.errorStatusCode = 403;
+            throw new Error("You are not authorized");
+        }
+
+        await Blog.destroy({ where: { id: req.params.id } });
+        res.sendStatus(204);
     },
+
+    toggleLike: async (req, res) => {
+        /*
+        #swagger.tags = ["Blogs"]
+        #swagger.summary = "Toggle Like (Coming Soon)"
+        #swagger.description = "Like system will be added in PostgreSQL version."
+        */
+        res.status(200).send({
+            error: false,
+            message: "Toggle like PostgreSQL version coming soon!"
+        });
+    }
 };

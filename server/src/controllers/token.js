@@ -1,65 +1,32 @@
-const Token = require('../models/token')
+"use strict"
+
+const { Token } = require("../models/index");
 
 module.exports = {
-
     list: async (req, res) => {
         // #swagger.ignore = true
-
-        const data = await res.getModelList(Token)
-
-        res.status(200).send({
-            error: false,
-            details: await res.getModelListDetails(Token),
-            data
-        })
+        const data = await Token.findAll();
+        res.status(200).send({ error: false, result: data });
     },
-
     create: async (req, res) => {
         // #swagger.ignore = true
-
-        const data = await Token.create(req.body)
-
-        res.status(201).send({
-            error: false,
-            data
-        })
-
+        const data = await Token.create(req.body);
+        res.status(201).send({ error: false, result: data });
     },
-
     read: async (req, res) => {
         // #swagger.ignore = true
-
-        const data = await Token.findOne({ _id: req.params.id })
-
-        res.status(200).send({
-            error: false,
-            data
-        })
-
+        const data = await Token.findByPk(req.params.id);
+        res.status(200).send({ error: false, result: data });
     },
-
     update: async (req, res) => {
         // #swagger.ignore = true
-
-        const data = await Token.updateOne({ _id: req.params.id }, req.body, { runValidators: true })
-
-        res.status(202).send({
-            error: false,
-            data,
-            new: await Token.findOne({ _id: req.params.id })
-        })
-
+        await Token.update(req.body, { where: { id: req.params.id } });
+        const data = await Token.findByPk(req.params.id);
+        res.status(202).send({ error: false, result: data });
     },
-
-    deletee: async (req, res) => {
+    remove: async (req, res) => {
         // #swagger.ignore = true
-
-        const data = await Token.deleteOne({ _id: req.params.id })
-
-        res.status(data.deletedCount ? 204 : 404).send({
-            error: !data.deletedCount,
-            data
-        })
-
+        const data = await Token.destroy({ where: { id: req.params.id } });
+        res.sendStatus(data ? 204 : 404);
     },
-}
+};
