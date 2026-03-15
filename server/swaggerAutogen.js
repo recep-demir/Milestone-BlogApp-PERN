@@ -4,6 +4,13 @@ require('dotenv').config()
 const swaggerAutogen = require('swagger-autogen')()
 const packageJson = require('./package.json')
 
+// Modelleri en üste, obje dışına alıyoruz
+// Dosya yollarının başına 'src/' eklediğimizden emin oluyoruz
+const Blog = require('./src/models/Blog');
+const Category = require('./src/models/Category');
+const Comment = require('./src/models/Comment');
+const User = require('./src/models/User');
+
 const HOST = process.env.HOST || 'localhost'
 const PORT = process.env.PORT || 8000
 
@@ -28,18 +35,15 @@ const document = {
   produces: ['application/json'],
   securityDefinitions: {
     Token: {
-			type: 'apiKey',
-			in: 'header',
-			name: 'Authorization',
-			description: 'Simple Token Authentication * Example: <b>Token ...tokenKey...</b>'
-		}
+      type: 'apiKey',
+      in: 'header',
+      name: 'Authorization',
+      description: 'Simple Token Authentication * Example: <b>Token ...tokenKey...</b>'
+    }
   },
   security: [{ Token: [] }],
   definitions: {
-    "User": require('./src/models/user').schema.obj,
-    "Blog": require('./models/blog').schema.obj,
-    "Category": require('./src/models/category').schema.obj,
-    "Comment": require('./models/comment').schema.obj,
+    // Burası şimdilik manuel kalsın, sunucu açılınca düzeltebiliriz
     Token: {
       access: "string",
       refresh: "string"
@@ -48,6 +52,7 @@ const document = {
 }
 
 const routes = ['./index.js']
-const outputFile = './configs/swagger.json'
+// Dosya yolu src/ altında olduğu için burayı da güncelledik:
+const outputFile = './src/configs/swagger.json' 
 
 swaggerAutogen(outputFile, routes, document)
