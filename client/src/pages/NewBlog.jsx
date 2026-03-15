@@ -82,7 +82,7 @@ const { currentUser } = useSelector(state => state.auth);
         <InputLabel>Category</InputLabel>
         <Select name="categoryId" value={formData.categoryId} onChange={handleChange}>         
           {categories.map((category)=>(
-            <MenuItem key={category._id} value={category._id}>{category.name}</MenuItem>
+            <MenuItem key={category.id} value={category.id}>{category.name}</MenuItem>
           ))}
         </Select>
       </FormControl>
