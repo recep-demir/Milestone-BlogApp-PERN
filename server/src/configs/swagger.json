@@ -79,7 +79,7 @@
         }
       }
     },
-    "/user/": {
+    "/users/": {
       "get": {
         "tags": [
           "Users"
@@ -137,7 +137,7 @@
         }
       }
     },
-    "/user/{id}": {
+    "/users/{id}": {
       "get": {
         "tags": [
           "Users"
@@ -365,9 +365,6 @@
         "responses": {
           "204": {
             "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found"
           }
         }
       },
@@ -388,6 +385,28 @@
         "responses": {
           "202": {
             "description": "Accepted"
+          }
+        }
+      }
+    },
+    "/blogs/{id}/postLike": {
+      "post": {
+        "tags": [
+          "Blogs"
+        ],
+        "summary": "Toggle Like (Coming Soon)",
+        "description": "Like system will be added in PostgreSQL version.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
