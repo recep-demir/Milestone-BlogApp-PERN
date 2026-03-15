@@ -8,16 +8,21 @@ module.exports = async (req, res, next) => {
 
   if (tokenKey && tokenKey[0] === "Token") {
     try {
-      // 1. Sadece token'ı veritabanında arıyoruz
+      // 1. Önce sadece Token'ı bul (include KULLANMADAN)
       const tokenData = await Token.findOne({ 
         where: { token: tokenKey[1] }
       });
-      
-      // 2. Eğer token bulunduysa, içindeki userId ile kullanıcıyı buluyoruz
-      if (tokenData && tokenData.userId) {
-        const userData = await User.findByPk(tokenData.userId);
-        if (userData) {
-           req.user = userData; // req.user doldu! 403 hatası artık yok.
+
+      if (tokenData) {
+        // 2. Token bulunduysa userId'yi al (Sequelize bazen userId bazen UserId yapar)
+        const userId = tokenData.userId || tokenData.UserId;
+        
+        if (userId) {
+            // 3. Kullanıcıyı ID'sine göre manuel bul
+            const user = await User.findByPk(userId);
+            if (user) {
+                req.user = user; // İŞTE ŞİMDİ YETKİLENDİRME BAŞARILI!
+            }
         }
       }
     } catch (error) {
