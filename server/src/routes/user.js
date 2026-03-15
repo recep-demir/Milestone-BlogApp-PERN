@@ -1,13 +1,17 @@
-"use strict";
+"use strict"
 
-const router = require("express").Router();
+const router = require('express').Router()
+const user = require('../controllers/user')
+const permissions = require('../middlewares/permissions')
 
-const { list, create, read, update, deletee } = require('../controllers/user');
-const { isAdmin,isLogin } = require('../middlewares/permissions');
+router.route('/')
+    .get(permissions.isAdmin, user.list)
+    .post(user.create)
 
-
-router.route('/').get(isAdmin, list).post(create);
-router.route('/:id').get(read).put(isLogin,update).patch(isLogin,update).delete(isAdmin,deletee)
+router.route('/:id')
+    .get(permissions.isLogin, user.read)
+    .put(permissions.isLogin, user.update)
+    .patch(permissions.isLogin, user.update)
+    .delete(permissions.isAdmin, user.remove) // BURASI DEĞİŞTİ (delete -> remove)
 
 module.exports = router
-
