@@ -27,6 +27,16 @@ const useBlogCalls = () => {
         }
     }
 
+    const getSingleBlog = async (id) => {
+        try {
+            await axios.get(`${BASE_URL}blogs/${id}`, getAuthHeader());
+            // Sayaç arttıktan sonra Redux'taki tüm listeyi güncelliyoruz ki ekrana anında yansısın
+            getBlogs(); 
+        } catch (error) {
+            console.error("Okunma sayısı artırılamadı:", error);
+        }
+    };
+
     const getCommentsByID = async (blogId) => {
       dispatch(fetchStart());
       try {
@@ -90,7 +100,7 @@ const useBlogCalls = () => {
         }
     };
 
-  return { getBlogs, toggleLike, addComment, getCategories, addBlog, deleteBlog, getCommentsByID }
+  return { getBlogs,getSingleBlog, toggleLike, addComment, getCategories, addBlog, deleteBlog, getCommentsByID }
 }
 
 export default useBlogCalls
