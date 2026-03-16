@@ -10,77 +10,69 @@ import useBlogCalls from "../hooks/useBlogCalls";
 
 const Detail = () => {
   const location = useLocation();
-  const initialBlog = location.state?.blog; // Statik gelen veri
+  const initialBlog = location.state?.blog; // Dashboard'dan gelen statik/eski veri
   
   const { comments, blogs } = useSelector(state => state.blog);
-  const { user } = useSelector(state => state.auth); // Like kontrolü için user'ı çektik
-  
-  const { addComment, getCommentsByID, toggleLike } = useBlogCalls();
-  const [content, setContent] = useState("");
+  // getSingleBlog fonksiyonunu içeri alıyoruz
+  const { addComment, getCommentsByID, getSingleBlog } = useBlogCalls(); 
+  const [Content, setContent] = useState("");
 
-  // Statik veri yerine, Redux'taki güncel blogu buluyoruz (böylece like sayısı anında güncellenir)
+  // REDUX'TAN GÜNCEL VERİYİ BULUYORUZ (Sayaç ve like'ların anında değişmesi için)
   const activeBlog = blogs?.find(b => b.id === initialBlog?.id) || initialBlog;
 
   useEffect(() => {
     if (activeBlog?.id) {
-      getCommentsByID(activeBlog.id);
+      getCommentsByID(activeBlog.id); // Yorumları getir
+      getSingleBlog(activeBlog.id);   // BACKEND SAYACINI ARTIR!
     }
   }, [activeBlog?.id]);
 
-  // Yorumları filtrele
   const blogComments = comments.filter((comment) => comment.blogId === activeBlog?.id);
-  
-  // Kullanıcının beğenip beğenmediğini kontrol et
-  const isLiked = activeBlog?.likes?.includes(user?.id);
 
   const handleAddComment = () => {
-    if (content.trim()) {
-      addComment(activeBlog.id, content);
+    if (Content.trim()) {
+      addComment(activeBlog.id, Content);
       setContent("");
-      // Yorum eklendikten sonra getCommentsByID tetiklenir ve blogComments güncellenir
+      getCommentsByID(activeBlog.id);
     }
   };
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
-      <CardMedia component="img" height="300" image={activeBlog?.image} alt={activeBlog?.title} sx={{ borderRadius: 2 }} />
+      <CardMedia component="img" height="300" image={activeBlog.image} alt={activeBlog.title} sx={{ borderRadius: 2, objectFit: "cover" }} />
       <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
         <Avatar sx={{ bgcolor: "primary.main", mr: 1 }}>
           <PersonIcon />
         </Avatar>
-        <Typography variant="body1" sx={{ fontWeight: "bold", mr: 2 }}>
-          {activeBlog?.author || "Anonymous"}
+        <Typography variant="body1" sx={{ fontWeight: "bold", mr: 2, textTransform: "capitalize" }}>
+          {activeBlog.User?.username || "Anonymous"}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {new Date(activeBlog?.createdAt).toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
+          {new Date(activeBlog.createdAt).toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
         </Typography>
       </Box>
 
       <Typography variant="h4" sx={{ mt: 2, fontWeight: "bold" }}>
-        {activeBlog?.title}
+        {activeBlog.title}
       </Typography>
 
       <Typography variant="body1" sx={{ mt: 2 }}>
-        {activeBlog?.content}
+        {activeBlog.content}
       </Typography>
 
       <Box sx={{ display: "flex", gap: 3, mt: 3 }}>
-        <Box 
-          sx={{ display: "flex", alignItems: "center", gap: 0.5, cursor: "pointer", "&:active": { transform: "scale(0.9)" } }}
-          onClick={() => toggleLike(activeBlog?.id, user?.id)}
-        >
-          {/* Like ikonu kırmızı veya gri olacak */}
-          <FavoriteIcon sx={{ color: isLiked ? "red" : "gray" }} />
-          <Typography>{activeBlog?.likes?.length || 0}</Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+          <FavoriteIcon sx={{ color: activeBlog.likes?.length > 0 ? "error.main" : "inherit" }} />
+          <Typography>{activeBlog.likes?.length || 0}</Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <CommentIcon />
-          {/* Yorum sayısı artık statik blogdan değil, canlı yorum dizisinin uzunluğundan geliyor */}
-          <Typography>{blogComments.length}</Typography>
+          <Typography>{activeBlog.Comments?.length || activeBlog.comments?.length || blogComments.length || 0}</Typography>
         </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
           <RemoveRedEyeIcon />
-          <Typography>{activeBlog?.countOfVisitors || 0}</Typography>
+          {/* İŞTE GÜNCEL ZİYARETÇİ SAYISI BURAYA YANSIYACAK */}
+          <Typography fontWeight="bold">{activeBlog.countOfVisitors || 0}</Typography>
         </Box>
       </Box>
 
@@ -89,7 +81,7 @@ const Detail = () => {
         fullWidth 
         multiline 
         rows={3}
-        value={content}
+        value={Content}
         onChange={(e) => setContent(e.target.value)}
         sx={{ mt: 3 }} 
       />
@@ -102,8 +94,8 @@ const Detail = () => {
         <Typography variant="h6">Comments</Typography>
         {blogComments.map((comment) => (
           <Box key={comment.id} sx={{ mt: 2, p: 2, border: "1px solid #ddd", borderRadius: 2 }}>
-            <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-              {comment.userId?.username || "Anonymous"}
+            <Typography variant="body2" sx={{ fontWeight: "bold", textTransform: "capitalize" }}>
+              {comment.User?.username || comment.userId?.username || "Anonymous"}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {new Date(comment.createdAt).toLocaleString("en-GB", { weekday: "short", day: "2-digit", month: "short", year: "numeric" })}
